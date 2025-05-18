@@ -1,12 +1,7 @@
-'''Modifying April 26 to catch samples with extreme outlier RC
-and to fix potentially problematic averaging
-'''
-
 ########################################################################################
 # 1. Load packages
 ########################################################################################
 import sys
-sys.path.insert(0, '/scratch/groups/dpetrov/emilys/scripts')
 import os
 import regex as re
 import gzip
@@ -39,19 +34,14 @@ except getopt.GetoptError:
 for opt, arg in opts:
     if opt in ("--sample"):
         sample = arg
-        print("Found sample, {}\n".format(sample))
     elif opt in ("--sample_path"):
         sample_path = arg
-        print("Found sample_path, {}\n".format(sample_path))
     elif opt in ("--root"):
         root = arg
-        print("found root, {}\n".format(root))
     elif opt in ("--project_name"):
         project_name = arg
-        print("found project_name, {}\n".format(project_name))
     elif opt in ("--parameter_name"):
         parameter_name = arg
-        print("found parameter_name, {}\n".format(parameter_name))
     else:
         assert False, "unhandled option"
 
@@ -105,8 +95,6 @@ record.write("Read in data for Sample {}\n".format(sample))
 #########################################################################################
 # 5. Analyze the spike-ins (get read count --> cell number conversion factor)
 ########################################################################################
-print("project_info.sample_to_spike_bcs is {}\n".format(project_info.sample_to_spike_bcs[sample]))
-print("project_info.sample_to_spike_sizes is {}\n".format(project_info.sample_to_spike_sizes[sample]))
 expected_spi_bc = project_info.sample_to_spike_bcs[sample]
 spi_bc_sizes = project_info.sample_to_spike_sizes[sample]
 
@@ -121,7 +109,6 @@ if len(expected_spi_bc) != len(spi_bc_sizes):
 #Check that the number of spike-ins associated with the sample is at least as large as the expected # of spike-in barcodes:
 bc_to_sizes_theoretical = dict(zip(expected_spi_bc, spi_bc_sizes))
 if "Spi" in tumors_all:
-    print("There are at least some spike-in barcodes present\n")
     record.write("Successfully identified spike-ins\n")
     SpikeInData = tumors_all["Spi"]
     bc_to_size = ListToDict(SpikeInData)
@@ -164,7 +151,6 @@ if "Spi" in tumors_all:
             for bc,val in rel_to_median.items():
                 if val > 10 or val < 0.1: # if a spike-in barcode is more than 10x away from the median, take it out.
                     problem_counter+=1
-                    print("You have an extreme outlier")
                     cation=True
                 else:
                     to_use_filtered[bc] = to_use[bc]
