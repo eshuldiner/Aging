@@ -67,7 +67,6 @@ reject = open(reject_read_name, 'wt')
 output = open(output_name, 'wt')
 
 
-
 reject.write("Reason,line_seq1,line_seq2\n")
 
 ########################################################################################
@@ -75,15 +74,12 @@ reject.write("Reason,line_seq1,line_seq2\n")
 ########################################################################################
 
 regexes_to_check = make_regexes(parameter_info.R1_regex_looseness,parameter_info.R2_regex_looseness)
-print("In count_reads, the regular expressions I'm testing are {}\n".format(regexes_to_check))
-
 
 #########################################################################################
 # 5. main loop, running through lines of file
 ########################################################################################
 
 File1 = sample_path
-print("File1 is {}\n".format(File1))
 
 if "_R1" in File1:
     File2 =File1.replace('_R1','_R2')
@@ -126,8 +122,6 @@ prelim_good_counts = 0
 
 while (line_seq1):
     line1 = f1.readline().rstrip() # skip the first line
-    print("line 1 is {}\n".format(line1))
-
     line_seq1 = f1.readline().rstrip() 
     line1 = f1.readline().rstrip() # skip the third line
     line_qua1 = f1.readline().rstrip() # get the sequencing quality
@@ -135,17 +129,12 @@ while (line_seq1):
     line_seq2 = f2.readline().rstrip()
     line2 = f2.readline().rstrip()
     line_qua2 = f2.readline().rstrip()
-  #  if project_info.company in ["Novogene","NovoGene","novogene","NOVOGENE","NG"]:
- #       print("checking that I am responding to company cue\n")
- #       line_seq2_comp = line_seq2
- #   else:
- #       line_seq2_comp=revcom(line_seq2)
+
     total_reads+=1
     match = 0
 
     regexR1 = re.compile(regexes_to_check[0])
     regexR2 = re.compile(regexes_to_check[1])
-    #    if regexR1.search(line_seq1) and regexR2.search(line_seq2_comp):
 
     if regexR1.search(line_seq1) and regexR2.search(line_seq2):
         match += 1
