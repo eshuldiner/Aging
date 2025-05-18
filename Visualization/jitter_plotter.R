@@ -1,5 +1,3 @@
-library(ggplot2)
-library(dplyr)
 library(scales)
 library(RColorBrewer)
 library(tidyverse)
@@ -22,23 +20,15 @@ blank_with_x_y_ticks =   theme(panel.background = element_rect(fill = "white"),
 
 data<-read.csv(input, sep=",", header=TRUE)
 data$sgID<-as.factor(data$sgID)
-print(head(data))
-print("inerts before")
-print(inerts)
+
 for (i in inerts){
   inerts<-c(inerts,strsplit(i,"_")[[1]][1])
 }
 
 inerts=unique(inerts)
-print("inerts after")
-print(inerts)
 
 sgids_not_inert = levels(data$sgID)[levels(data$sgID) %!in% inerts]
-print("sgids not inert")
-print(sgids_not_inert)
 sgids_ordered <-c(inerts, sgids_not_inert)
-print("sgids ordered")
-print(sgids_ordered)
 
 
 data$sgID<-factor(data$sgID, levels=sgids_ordered)
@@ -48,12 +38,8 @@ data <- data %>% separate(sgID, "_", remove=FALSE,
 
 data$Gene<-as.factor(data$Gene)
 genes_not_inert = levels(data$Gene)[levels(data$Gene) %!in% inerts]
-print("genes not inert")
-print(genes_not_inert)
 
 genes_inert <-levels(data$Gene)[levels(data$Gene) %in% inerts]
-print("genes_inert is")
-print(genes_inert)
 genes_ordered<-c(genes_inert, genes_not_inert)
 data$Gene<-factor(data$Gene, levels=genes_ordered)
 
@@ -62,24 +48,15 @@ inert_colors<- c(rep("gray", length(genes_inert)))
 not_inert_colors <-c(brewer.pal(8,"Dark2"), brewer.pal(12,"Paired"), brewer.pal(8,"Set2"),brewer.pal(8,"Dark2"), brewer.pal(12,"Paired"), brewer.pal(8,"Set2"))
 all_colors<-c(inert_colors, not_inert_colors)
 
-
-##########THIS PLOT HAS ALL SAMPLES, SPLIT BY GENOTYPE (VIA FACETING)
-#Note to self: using geom_jitter because geom_beeswarm takes too long for this much data
-##############################################################################################################################
 w =1+length(unique(data$sgID))*0.4
 
 ##############################################################################################################################
-##############################################################################################################################
 #####################These plots will have each treatment group split by sample
 ##############################################################################################################################
-print(head(data))
 treatments = unique(data$Treatment)
-print("treatments are\n")
-print(treatments)
+
 for (t in treatments){
   data_t = data[data$Treatment==t,]
-  print("sgids are ")
-  print(unique(data_t$sgID))
   plot_t<-ggplot(data_t, aes(x=sgID, y=CellNum, col=Gene, size=CellNum)) +
   blank_with_x_y_ticks +
   theme(axis.line = element_line(colour = "black"),
@@ -99,7 +76,6 @@ for (t in treatments){
   
   h = 2 + length(unique(data_t$Sample))*1
   
-  cat(sprintf("Attempting to print a plot with dimensions %f by %f\n",w,h))
 ggsave(plot_name,
        plot = plot_t,
        useDingbats=FALSE,
