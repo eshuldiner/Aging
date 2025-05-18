@@ -1,6 +1,3 @@
-#python3 project_set_up.py --project=JDH_Exp4 --parameter=3c --root=/scratch/groups/dpetrov/emilys/
-
-# 1 Get arguments from tubaseq.sh
 import getopt
 import sys
 from helper_functions import read_project_info, read_parameter_info, write_input_file, hamming_distance
@@ -45,7 +42,6 @@ jitterplot_figure_dir = figure_dir + "/jitter_plots"
 dirs = [inp_dir,project_dir, home_dir, raw_counts_dir, rejected_dir, summary_dir, record_dir, figure_dir, result_figure_dir, filtered_dir, qc_figure_dir, jitterplot_figure_dir, cluster_summary_dir]
 
 for d in dirs:
-	print("d is {}\n".format(d))
 	Path(d).mkdir(parents=True, exist_ok=True)
 
 
