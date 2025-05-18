@@ -1,8 +1,7 @@
 """
-This script performs 3 functions:
-1) identication and removal of tumors that don't map to any project
-2) identification and removal of tumors that map to other projects (i.e., likely contamination)
-3) clustering of tumors (small tumors with barcodes very similar to those of much larger tumors are collapsed into them)
+This script performs 2 functions:
+1) identication and removal of tumors that don't map to the project
+2) clustering of tumors (small tumors with barcodes very similar to those of much larger tumors are collapsed into them)
 """
 ###
 
@@ -10,7 +9,6 @@ This script performs 3 functions:
 # 1. Load packages
 ########################################################################################
 import sys
-sys.path.insert(0, '/scratch/groups/dpetrov/emilys/scripts')
 import os
 import regex as re
 import gzip
@@ -145,7 +143,6 @@ for sgid in tumors_all.keys():
     rc=list(rc)
     status=list(status)
     # Run through the barcodes... for each barcode, check barcodes AFTER IT (in terms of readcount), within that sgID.
-    print("working on barcodes associated with sgID {}\n".format(sgid))
     for i,val in enumerate(bc):
         for j in range(i+1, len(bc)):
             if rc[i]>1/threshold: #only consider collapsing smaller BCs into this BC if it is sufficiently large
@@ -172,11 +169,6 @@ for sgid in tumors_all_clustered.keys():
 end_time = time.monotonic()
 td = timedelta(seconds=end_time - start_time)
 record.write("Barcode clustering took {}\n".format(td))
-
-
-# print("LOOKING AT COLLECT_COLLAPSES\n")
-# for sgid in collect_collapses.keys():
-#     print("{},{}\n".format(sgid, collect_collapses[sgid]))
 
 cluster_summmary_name = root + project_name + "/" + parameter_name + "/summary/clustering_summaries/" + naming_stub + "_clustering_summary.txt"
 cluster_out = open(cluster_summmary_name, 'wt')
