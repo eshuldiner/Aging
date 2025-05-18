@@ -1,6 +1,5 @@
 '''
-The goal of this program is to estimate a lambda and an overall barcode diversity (D) for each sgID
-in a Tuba-seq dataset by assuming that the probability of each BC occuring in i mice is poisson-distributed
+This script estimates a lambda and an overall barcode diversity (D) for each sgID in a Tuba-seq dataset by assuming that the probability of each BC occuring in i mice is poisson-distributed
 
 How this works:
 
@@ -22,9 +21,6 @@ from helper_functions import pull_sgid, pull_bc
 
 
 def input_data_for_bc_diversity_analysis(tumor_file_name):
-	'''Read in tumor data, store in dictionary where keys are sgids, values are lists of all bc
-	concatenated across samples. Duplicates are NOT dropped.
-	'''
 	input_data=open(tumor_file_name,'rt')
 	input_data.readline()
 
@@ -56,7 +52,6 @@ def get_mu_nonzero(data, sgID):
 
 	bc = data[sgID]
 
-	#just count up the occurences of each BC
 	for b in bc:
 		if b in bc_counts:
 			bc_counts[b]+=1
@@ -65,7 +60,6 @@ def get_mu_nonzero(data, sgID):
 
 	counts = list(bc_counts.values())
 	mu_nonzero = np.mean(counts)
-#	print("counts are {}\nmu_nonzero is {}, max was {}\n".format(counts,mu_nonzero,max(counts)))
 
 	return(mu_nonzero)
 
@@ -78,15 +72,11 @@ def get_L(data, sgID):
 def get_lambda(mu_nonzero,N_samp):
 	'''Given mu_nonzero, calculate lambda from equation mu_nonzero = lambda/(1-e^-lambda).
 	This will need to be down empirically (i.e. with an optimizer)'''
-	#from scipy import stats 
 	from scipy.optimize import brentq
 	def fun(_lambda):
 		return(_lambda-mu_nonzero+mu_nonzero*np.exp(-1*_lambda))
-		#return(mu_nonzero-(_lambda/(1-np.exp(-1*_lambda))))
-		#return mu_nonzero*(1-np.exp(-1*_lambda))
 
 	lambda_sol = brentq(fun, 0.0000001, N_samp) # need to start search above 0 because 0 is also a root
-	print("solution for lambda is {}\n".format(lambda_sol))
 	return(lambda_sol)
 
 def get_D(L,_lambda):
@@ -102,15 +92,10 @@ def get_cutoff(certainty, _lambda, nsamples):
 	Reminder that for the poisson cdf the probability returned  includes the limit, i.e. is to see the limit OR less
 	'''
 	from scipy.stats import poisson
-	print("There are {} samples\n".format(nsamples))
 	for i in range(nsamples+1):
 		cumulative_prob = poisson.cdf(k=i,mu=_lambda)
-		print("prob of being in {} or fewer samples is {}\n".format(i, cumulative_prob))
 		if 1-cumulative_prob<certainty:
-			print("Given your desired certainty of {}, you should throw out BC in {} or more samples because cumul. prob is {} for being in {} or fewer\n".format(certainty,i+1,cumulative_prob,i))
 			return(i+1)
-	print("You should never get here\n")
-
 
 
 def barcodeDiversityCutoffs(root, project_id, parameter_name, certainty, for_bc_diversity_analysis, nsamples):
@@ -123,13 +108,9 @@ def barcodeDiversityCutoffs(root, project_id, parameter_name, certainty, for_bc_
 
 	for sgid in for_bc_diversity_analysis.keys():
 		if sgid !="Spi":
-			print("Working on sgID {}\n".format(sgid))
 			mu_nz = get_mu_nonzero(for_bc_diversity_analysis, sgid) #average number of occurences of each BC (across mice) for an sgID.
-			print("mu_nz is {}\n".format(mu_nz))
 			L = get_L(for_bc_diversity_analysis, sgid) #the # of tumors associated with an sgID (multi-counting duplicate BC)
-			print("L is {}\n".format(L))
 			try:
-				print("mu_nz is {}, nsamples is {}\n".format(mu_nz, nsamples))
 				_lambda = get_lambda(mu_nz, nsamples) #lambda is I think the mean of the poisson
 				D=get_D(L, _lambda) #I think D is supposed to be the estimated number of unique barcodes. L/lambda
 				cutoff_calc = get_cutoff(certainty ,_lambda, nsamples)
@@ -153,7 +134,6 @@ def identifyKeepers(tumor_data):
 	counter=0
 	perLargest_keepers = {}
 
-	print("There are {} barcodes in the dataset\n".format(len(tumor_data)))
 	for s in tumor_data:
 	
 		splitter = s.strip().split("_")
@@ -215,12 +195,10 @@ def removeContamination(infilename, outfilename, removal_threshold_dict, contami
 		sgid = pull_sgid(sgid_bc)
 		removal_threshold = removal_threshold_dict[sgid]
 		for tl in tumors_in[sgid_bc]:
-		#	print("tl is {}\n".format(tl))
 			reads+=int(tl.split(",")[2])
 		if len(tumors_in[sgid_bc])>=removal_threshold: #you MAY BE removing tumors with this sgID-bc
 			if sgid_bc not in keepers:
 				if contamination_report !="NA":
-					print("I'm rejecting sgid-bc {} because it occurs in {} samples and the limit for that sgid is {} and it was not flagged as one to keep based on distribution of reads\n".format(sgid_bc, len(tumors_in[sgid_bc]), removal_threshold))
 					contam_report_out.write("{},{},{},{},{},{},Rejected\n".format(sgid_bc, sgid, removal_threshold, pull_bc(sgid_bc), len(tumors_in[sgid_bc]), reads))
 			else:
 				for i in tumors_in[sgid_bc]: #you are now looping through occurences of the barcode
@@ -232,10 +210,8 @@ def removeContamination(infilename, outfilename, removal_threshold_dict, contami
 
 					else:
 						if contamination_report !="NA":
-							print("I'm rejecting sgid-bc {} because it occurs in {} samples and the limit for that sgid is {} and it was not flagged as one to keep based on distribution of reads\n".format(sgid_bc, len(tumors_in[sgid_bc]), removal_threshold))
 							contam_report_out.write("{},{},{},{},{},{},Rejected\n".format(sgid_bc, sgid, removal_threshold, pull_bc(sgid_bc), len(tumors_in[sgid_bc]), reads))		
 		else:
-			#I'm keeping this barcode based on the sgID-specific threshold.
 			for i in tumors_in[sgid_bc]:
 				outfile.write("{}\n".format(i))
 			if contamination_report !="NA":
