@@ -33,7 +33,7 @@ The following parameters must be defined in the project file (if a parameter is 
 | CAS9NEG_GT | Genotype of mice lacking Cas9 (matching one of <GENOTYPES>) | string |
 
 ## Parameter file
-The parameter values used in performing a given analysis are passed through a "parameter file". The parameter file is tab-separated, with each line of the file defining a parameter. Each line of the parameter 
+The parameter values used in performing a given analysis are passed through a "parameter file". The parameter file is tab-separated, with each line of the file defining a parameter.
 
 By default, the location and name of the project file should be as follows:
 <root>/Parameters/<parameter_id>_parameter_file.txt
@@ -52,4 +52,5 @@ The following parameters must be defined in the project file (see Methods sectio
 
 An example project and parameter file are provided in /Parameters. Note that pathes in the project file will need to be substituted. 
 
-
+# Adaptive Sampling
+In comparing the effects of tumor suppressor inactivation in young and old mice, we sought to compare equivalent portions of the tumor size distributions (i.e., the same number of tumors per infectious unit of virus delivered). To ensure this, we scaled the number of tumors analyzed for each sgRNA in each cohort to account for differences in viral titer and the number of mice transduced in each cohort, and then analyzed the largest tumors per Lenti-sgRNA/Cre vector. The manuscript contains additional details on these statistics and their interpretation; for code related to the implementation of adaptive sampling, see https://github.com/eshuldiner/Eml4-Alk.
