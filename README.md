@@ -7,6 +7,14 @@ This repository contains code associated with the manuscript
 
 # Running the tuba-seq pipeline
 
+## Environment
+Dependencies required to run the code can be found in ./Environment. Create the virtual environment and load it using conda.
+
+```
+conda create -f Environment/tubaseq.yml
+source activate tubaseq
+```
+
 ## Project file
 
 Information defining a project (including sample names, locations, and characteristics, as well as the makeup of the viral pool) are passed through a "project file". The project file is tab-separated, with each line of the file defining a parameter. Parameter values with multiple fields are comma-separated; see example project file.
